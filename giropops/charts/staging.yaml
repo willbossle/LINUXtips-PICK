@@ -1,0 +1,15 @@
+replicaCount: 3
+
+image:
+  tag: "1.0-staging"
+
+service:
+  type: NodePort
+  nodePort: 32530
+
+redis:
+  image:
+    tag: "staging"
+
+environmentLabel: "staging"
+

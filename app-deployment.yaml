@@ -1,0 +1,71 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   labels:
+#     app: giropops-senhas
+#     environment: prod
+#   name: giropops-senhas
+# spec:
+#   replicas: 5
+#   selector:
+#     matchLabels:
+#       app: giropops-senhas
+#   template:
+#     metadata:
+#       labels:
+#         app: giropops-senhas
+#         role: application
+#     spec:
+#       containers:
+#       - image: willbossle/giropops-senhas:1.0
+#         name: giropops-senhas
+#         ports:
+#         - containerPort: 5000
+#         imagePullPolicy: Always
+#         env:
+#         - name: REDIS_HOST
+#           value: redis-service
+#         resources:
+#           limits:
+#             cpu: 400m
+#             memory: 256Mi
+#           requests:
+#             cpu: 150m
+#             memory: 128Mi
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "giropops.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "giropops.labels" . | nindent 4 }}
+    environment: {{ .Values.environmentLabel }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "giropops.name" . }}
+      environment: {{ .Values.environmentLabel }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "giropops.name" . }}
+        environment: {{ .Values.environmentLabel }}
+    spec:
+      containers:
+      - name: giropops-senhas
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        env:
+        - name: REDIS_HOST
+          value: redis-service
+        resources:
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.resources.requests.cpu }}
+            memory: {{ .Values.resources.requests.memory }}

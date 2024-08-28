@@ -1,0 +1,58 @@
+package:
+  name: giropops-senhas
+  version: 1.0.0
+  description: Gere senhas com um click
+  epoch: 0
+  target-architecture:
+  - x86_64
+  copyright:
+    - paths:
+        - '*'
+      attestation: |
+        Copyright 1992, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005,
+        2006, 2007, 2008, 2010, 2011, 2013, 2014, 2022 Free Software Foundation,
+        Inc.
+      license: GPL-3.0-or-later
+
+  dependencies:
+    runtime:
+    - python3
+
+environment:
+  contents:
+    repositories:
+    - https://dl-cdn.alpinelinux.org/alpine/edge/main
+    - https://dl-cdn.alpinelinux.org/alpine/edge/community
+    packages:
+    - alpine-baselayout-data
+    - ca-certificates-bundle
+    - busybox
+    - gcc
+    - musl-dev
+    - python3
+    - python3-dev
+    - py3-pip
+    - py3-virtualenv
+
+pipeline:
+- name: Criando gerador de senhas
+  runs: |
+    EXECDIR="${{targets.destdir}}/usr/bin"
+    APPDIR="${{targets.destdir}}/usr/share/app"
+    mkdir -p "${EXECDIR}" "${APPDIR}"
+    echo "#!/usr/share/app/venv/bin/python3" > "${EXECDIR}/app"
+    cat app.py >> "${EXECDIR}/app"
+    cp -R templates "${EXECDIR}"
+    cp -R static "${EXECDIR}"
+    chmod +x "${EXECDIR}/app"
+    virtualenv "${APPDIR}/venv"
+    sh -c "source '${APPDIR}/venv/bin/activate' && pip install -r requirements.txt"
+    # Criando o arquivo env.sh
+    echo '#!/bin/sh' > "${EXECDIR}/env.sh"
+    echo 'export LANG=C.UTF-8' >> "${EXECDIR}/env.sh"
+    echo 'export PYTHONDONTWRITEBYTECODE=1' >> "${EXECDIR}/env.sh"
+    echo 'export PYTHONUNBUFFERED=1' >> "${EXECDIR}/env.sh"
+    echo 'export PIP_DISABLE_PIP_VERSION_CHECK=1' >> "${EXECDIR}/env.sh"
+    echo 'export REDIS_HOST=redis' >> "${EXECDIR}/env.sh"
+    echo 'export FLASK_APP=/pkg/usr/local/bin/app.py' >> "${EXECDIR}/env.sh"
+    chmod +x "${EXECDIR}/env.sh"

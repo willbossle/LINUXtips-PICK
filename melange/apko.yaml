@@ -1,0 +1,26 @@
+contents:
+  repositories:
+    - https://dl-cdn.alpinelinux.org/alpine/edge/main
+    - https://dl-cdn.alpinelinux.org/alpine/edge/community
+    - '@local /work/packages'
+    - '@local packages'
+  packages:
+    - giropops-senhas@local
+    - bash
+#  keyring:
+ # - ./melange.rsa.pub
+archs:
+  - x86_64
+accounts:
+  groups:
+    - groupname: nonroot
+      gid: 65532
+  users:
+    - username: nonroot
+      uid: 65532
+  run-as: nonroot
+cmd: /bin/bash /usr/bin/env.sh
+  
+entrypoint:
+  #command: /home/build/venv/bin/python -m flask run --host=0.0.0.0
+  command: /usr/bin/app

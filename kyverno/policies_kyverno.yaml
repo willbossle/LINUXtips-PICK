@@ -1,0 +1,206 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+  annotations:
+    policies.kyverno.io/title: Disallow Latest Tag
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: "The ':latest' tag is mutable and can lead to unexpected errors if the image changes. A best practice is to use an immutable tag that maps to a specific version of an application Pod. This policy validates that the image specifies a tag and that it is not called `latest`.      "
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: require-image-tag
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "An image tag is required."
+      pattern:
+        spec:
+          containers:
+          - image: "*:*"
+  - name: validate-image-tag
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "Using a mutable image tag e.g. 'latest' is not allowed."
+      pattern:
+        spec:
+          containers:
+          - image: "!*:latest"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-requests-limits
+  annotations:
+    policies.kyverno.io/title: Require Limits and Requests
+    policies.kyverno.io/category: Best Practices, EKS Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/description: >-
+      As application workloads share cluster resources, it is important to limit resources
+      requested and consumed by each Pod. It is recommended to require resource requests and
+      limits per Pod, especially for memory and CPU. If a Namespace level request or limit is specified,
+      defaults will automatically be applied to each Pod based on the LimitRange configuration.
+      This policy validates that all containers have something specified for memory and CPU
+      requests and memory limits.      
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: validate-resources
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "CPU and memory resource requests and limits are required."
+      pattern:
+        spec:
+          containers:
+          - resources:
+              requests:
+                memory: "?*"
+                cpu: "?*"
+              limits:
+                memory: "?*"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privilege-escalation
+  annotations:
+    policies.kyverno.io/title: Disallow Privilege Escalation
+    policies.kyverno.io/category: Pod Security Standards (Restricted)
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    kyverno.io/kyverno-version: 1.6.0
+    kyverno.io/kubernetes-version: "1.22-1.23"
+    policies.kyverno.io/description: >-
+      Privilege escalation, such as via set-user-ID or set-group-ID file mode, should not be allowed.
+      This policy ensures the `allowPrivilegeEscalation` field is set to `false`.      
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+    - name: privilege-escalation
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      validate:
+        message: >-
+          Privilege escalation is disallowed. The fields
+          spec.containers[*].securityContext.allowPrivilegeEscalation,
+          spec.initContainers[*].securityContext.allowPrivilegeEscalation,
+          and spec.ephemeralContainers[*].securityContext.allowPrivilegeEscalation
+          must be set to `false`.          
+        pattern:
+          spec:
+            =(ephemeralContainers):
+            - securityContext:
+                allowPrivilegeEscalation: "false"
+            =(initContainers):
+            - securityContext:
+                allowPrivilegeEscalation: "false"
+            containers:
+            - securityContext:
+                allowPrivilegeEscalation: "false"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: secrets-not-from-env-vars
+  annotations:
+    policies.kyverno.io/title: Disallow Secrets from Env Vars
+    policies.kyverno.io/category: Sample, EKS Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod, Secret
+    kyverno.io/kyverno-version: 1.6.0
+    policies.kyverno.io/description: >-
+      Secrets used as environment variables containing sensitive information may, if not carefully controlled, 
+      be printed in log output which could be visible to unauthorized people and captured in forwarding
+      applications. This policy disallows using Secrets as environment variables.      
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: secrets-not-from-env-vars
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "Secrets must be mounted as volumes, not as environment variables."
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            =(env):
+            - =(valueFrom):
+                X(secretKeyRef): "null"
+  - name: secrets-not-from-envfrom
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "Secrets must not come from envFrom statements."
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            =(envFrom):
+            - X(secretRef): "null"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-imagepullsecrets
+  annotations:
+    policies.kyverno.io/title: Require imagePullSecrets
+    policies.kyverno.io/category: Sample
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Some registries, both public and private, require credentials in order to pull images
+      from them. This policy checks those images and if they come from a registry
+      other than ghcr.io or quay.io an `imagePullSecret` is required.      
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: check-for-image-pull-secrets
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    preconditions:
+      all:
+      - key: "{{ images.containers.*.registry }}"
+        operator: AnyNotIn
+        value:
+        - ghcr.io
+        - quay.io
+    validate:
+      message: "An `imagePullSecret` is required when pulling from this registry."
+      pattern:
+        spec:
+          imagePullSecrets:
+          - name: "?*"

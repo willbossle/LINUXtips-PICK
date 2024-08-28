@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  tag: "1.0-dev"
+
+service:
+  type: NodePort
+  nodePort: 32520
+
+redis:
+  image:
+    tag: "development"
+
+environmentLabel: "development"
