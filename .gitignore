@@ -164,3 +164,4 @@ cython_debug/
 # SQL
 database.db
 #Folders
+old
