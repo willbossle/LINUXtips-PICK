@@ -1,0 +1,2 @@
+# LINUXtips-PICK
+Desafio LINUXtips-PICK 2024
