@@ -7,14 +7,9 @@ from prometheus_client import Counter, generate_latest  # Adicionando a importa√
 
 app = Flask(__name__)
 
-redis_host = os.environ.get('REDIS_HOST', 'redis-service')
+redis_host = os.environ.get('REDIS_HOST')
 redis_port = 6379
 redis_password = ""
-
-# redis_host = os.environ.get("REDIS_HOST")
-# redis_port = os.environ.get("REDIS_PORT")
-# redis_user = os.environ.get("REDIS_USER")
-# redis_pass = os.environ.get("REDIS_PASS")
 
 r = redis.StrictRedis(host=redis_host, port=redis_port, password="", decode_responses=True)
 

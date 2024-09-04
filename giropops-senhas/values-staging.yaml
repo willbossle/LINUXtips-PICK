@@ -11,4 +11,4 @@ service:
   nodePort: 32530
 
 ingress:
-  host: "staging.giropops-senhas.com"
+  host: "staging.girops-senhas.willber.local"

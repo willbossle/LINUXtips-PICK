@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: giropops-senhas
+  name: giropops-senhas-deployment
+  namespace: giropops-senhas
+spec:
+  template:
+    metadata:
+      labels:
+        app: giropops-senhas
+  selector:
+    matchLabels:
+      app: giropops-senhas
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+    spec:
+      containers:
+      - image: willbossle/giropops-senhas:2.0
+        name: giropops-senhas
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            cpu: '0.4'
+            memory: 256Mi
+          requests:
+            cpu: '0.1'
+            memory: 128Mi
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: REDIS_HOST
+          valueFrom:
+              configMapKeyRef:
+                name: giropops-senhas-env
+                key: REDIS_HOST
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1

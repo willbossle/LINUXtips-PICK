@@ -11,4 +11,4 @@ service:
   nodePort: 32520
 
 ingress:
-  host: "dev.girops-senhas.com"
+  host: "dev.girops-senhas.willber.local"
