@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: giropops-senhas-alerts
+  namespace: monitoring  # Ajuste para o namespace onde o Prometheus está instalado
+spec:
+  groups:
+  - name: giropops-senhas-alerts
+    rules:
+    - alert: FlaskAppDown
+      expr: gauge("flask_app_health_status") == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "O endpoint da aplicação Flask está fora do ar."
+        description: "A aplicação Flask está relatando problemas no endpoint. Verifique a aplicação."
+
+    - alert: RedisConnectionFailed
+      expr: up{job="giropops-senhas-servicemonitor"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Falha na conexão com o Redis."
+        description: "A aplicação Flask não consegue se conectar ao Redis. Verifique a disponibilidade do Redis e a conectividade."

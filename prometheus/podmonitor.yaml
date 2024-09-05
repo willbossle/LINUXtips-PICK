@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: giropops-senhas-podmonitor
+  namespace: monitoring  # Ajuste para o namespace onde o Prometheus está instalado
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: giropops-senhas
+  podMetricsEndpoints:
+  - port: 5000
+    path: /metrics
+    interval: 10s
+    scheme: http

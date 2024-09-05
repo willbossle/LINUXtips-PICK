@@ -247,11 +247,13 @@ spec:
           - Pod
     verifyImages:
     - imageReferences:
-      - "nataliagranato/linuxtips-giropops-senhas*"
+      - "willbossle/giropops-senhas*"
       mutateDigest: true
       attestors:
       - entries:
         - keys:
             publicKeys: |
               -----BEGIN PUBLIC KEY-----
+              MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuPAd0oyNLd1Q3PgaqfeI5ol8fWeD
+              FlZEQfzmLqM94V/CdjANfZW9k3EkDBYeuHqyiivuV0CKv2Af8lkGgTC/gQ==
               -----END PUBLIC KEY-----

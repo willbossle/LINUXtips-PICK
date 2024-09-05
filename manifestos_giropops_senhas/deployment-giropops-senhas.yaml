@@ -31,6 +31,8 @@ spec:
           requests:
             cpu: '0.1'
             memory: 128Mi
+        imagePullSecrets:
+        - name: docker-hub-willber
         imagePullPolicy: IfNotPresent
         env:
         - name: REDIS_HOST

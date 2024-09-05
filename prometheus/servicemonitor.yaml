@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: giropops-senhas-servicemonitor
+  namespace: monitoring  # Ajuste para o namespace onde o Prometheus está instalado
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: giropops-senhas
+  endpoints:
+  - port: 5000
+    path: /metrics
+    interval: 10s
+    scheme: http

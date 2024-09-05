@@ -20,6 +20,8 @@ spec:
         name: redis
         ports:
         - containerPort: 6379
+        imagePullSecrets:
+        - name: docker-hub-willber
         imagePullPolicy: IfNotPresent
         resources:
           limits:

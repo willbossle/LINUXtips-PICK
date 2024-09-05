@@ -3,7 +3,7 @@ import redis
 import string
 import random
 import os
-from prometheus_client import Counter, generate_latest  # Adicionando a importação necessária
+from prometheus_client import Counter, generate_latest, start_http_server, Gauge  # Adicionando a importação necessária
 
 app = Flask(__name__)
 
@@ -14,6 +14,8 @@ redis_password = ""
 r = redis.StrictRedis(host=redis_host, port=redis_port, password="", decode_responses=True)
 
 senha_gerada_counter = Counter('senha_gerada', 'Contador de senhas geradas')
+senha_curta_nao_segura_counter = Counter('senha_curta_nao_segura_counter', 'Contador de senhas com menos de 12 caracteres ou sem maiúsculas ou sem números ou sem caracteres especiais')
+health_status = Gauge('flask_app_health_status', 'Status de saúde da aplicação Flask', labelnames=['status'])
 
 
 def criar_senha(tamanho, incluir_numeros, incluir_caracteres_especiais):
@@ -28,6 +30,20 @@ def criar_senha(tamanho, incluir_numeros, incluir_caracteres_especiais):
     senha = ''.join(random.choices(caracteres, k=tamanho))
 
     return senha
+
+def atualizar_contadores(senha):
+    tamanho = len(senha)
+    tem_maiusculas = any(c.isupper() for c in senha)
+    tem_numeros = any(c.isdigit() for c in senha)
+    tem_simbolos = any(c in string.punctuation for c in senha)
+
+    if tamanho < 12:
+        if not tem_maiusculas:
+            senha_curta_nao_segura_counter.inc()
+        if not tem_numeros:
+            senha_curta_nao_segura_counter.inc()
+        if not tem_simbolos:
+            senha_curta_nao_segura_counter.inc()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -69,6 +85,12 @@ def listar_senhas():
 
 @app.route('/metrics')
 def metrics():
+    # Atualiza o status de saúde
+    try:
+        r.ping()
+        health_status.labels(status='up').set(1)
+    except redis.ConnectionError:
+        health_status.labels(status='down').set(0)
     return generate_latest()
 
 @app.route('/health', methods=['GET'])
@@ -85,4 +107,5 @@ def health_check():
 
 
 if __name__ == '__main__':
+    start_http_server(8000)  # Inicializa o servidor de métricas Prometheus
     app.run(debug=False, host='0.0.0.0', port=5000)

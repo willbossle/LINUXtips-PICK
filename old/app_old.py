@@ -3,16 +3,20 @@ import redis
 import string
 import random
 import os
-from prometheus_client import Counter, start_http_server, generate_latest
-
+from prometheus_client import Counter, generate_latest  # Adicionando a importação necessária
 
 app = Flask(__name__)
 
-redis_host = redis #os.environ.get('REDIS_HOST', 'redis-service')
+redis_host = os.environ.get('REDIS_HOST', 'redis-service')
 redis_port = 6379
 redis_password = ""
 
-r = redis.StrictRedis(host=redis_host, port=redis_port, password=redis_password, decode_responses=True)
+# redis_host = os.environ.get("REDIS_HOST")
+# redis_port = os.environ.get("REDIS_PORT")
+# redis_user = os.environ.get("REDIS_USER")
+# redis_pass = os.environ.get("REDIS_PASS")
+
+r = redis.StrictRedis(host=redis_host, port=redis_port, password="", decode_responses=True)
 
 senha_gerada_counter = Counter('senha_gerada', 'Contador de senhas geradas')
 
@@ -71,7 +75,6 @@ def listar_senhas():
 @app.route('/metrics')
 def metrics():
     return generate_latest()
-
 
 @app.route('/health', methods=['GET'])
 def health_check():
