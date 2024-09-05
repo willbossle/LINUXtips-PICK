@@ -3,7 +3,7 @@ FROM cgr.dev/chainguard/python:latest-dev AS build
 WORKDIR /app
 COPY . /app
 
-RUN python -m pip install --no-cache-dir -r requirements2.txt --user
+RUN python -m pip install --no-cache-dir -r requirements.txt --user
 
 FROM cgr.dev/chainguard/python:latest
 

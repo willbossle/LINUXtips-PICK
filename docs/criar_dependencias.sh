@@ -63,23 +63,10 @@ helm version
 # Limpeza
 rm get_helm.sh
 
-# Atualiza o repositório de charts do Helm
-echo "Atualizando o repositório de charts do Helm..."
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-
-# Cria um namespace para o Prometheus
-echo "Criando o namespace 'monitoring'..."
-kubectl create namespace monitoring
-
-# Instala o Prometheus usando Helm
-echo "Instalando o Prometheus..."
-helm install prometheus prometheus-community/prometheus --namespace monitoring
-
-# Verifica se o Prometheus foi instalado corretamente
-echo "Verificando o status da instalação..."
-helm list --namespace monitoring
-
+git clone https://github.com/prometheus-operator/kube-prometheus
+cd kube-prometheus
+kubectl create -f manifests/setup
+cd ..
 echo "Instalação do Prometheus concluída!"
 echo "Instalação concluída!"
 

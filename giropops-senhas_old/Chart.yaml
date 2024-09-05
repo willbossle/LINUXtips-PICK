@@ -1,8 +1,0 @@
-apiVersion: v2
-name: giropops
-description: Gerador de Senhas do Desafio PICK 2024
-version: 0.1.0
-sources: 
-  - https://github.com/willbossle/PICK2024
-type: application
-appVersion: "1.16.0"
