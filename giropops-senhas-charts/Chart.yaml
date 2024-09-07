@@ -1,0 +1,17 @@
+apiVersion: v2
+name: giropops-senhas-chart
+description: Helm chart para criar aplicação Giropops Senhas
+version: 0.1.0
+appVersion: "2.0"
+
+maintainers:
+  - name: Willber Bossle Alves
+    email: wbosslealves@gmail.com
+
+keywords:
+  - ingress
+  - giropops-senhas
+  - redis
+
+sources:
+  - https://github.com/willbossle/LINUXtips-PICK/

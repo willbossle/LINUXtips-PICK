@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: giropops-senhas-cert
+  namespace: {{ .Values.namespace }}
+spec:
+  secretName: {{ .Values.tls.secretName }}
+  issuerRef:
+    name: selfsigned-issuer
+    kind: Issuer
+  commonName: {{ .Values.ingress.host }}
+  dnsNames:
+  - {{ .Values.ingress.host }}

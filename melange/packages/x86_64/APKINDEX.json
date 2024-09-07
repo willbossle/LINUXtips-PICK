@@ -11,7 +11,7 @@
       "Origin": "giropops-senhas",
       "Maintainer": "",
       "URL": "",
-      "Checksum": "i8IlB80Gn5CXMwXeliT9jcRk8eA=",
+      "Checksum": "eiQgPXt0eelIHIgkexixTal8d48=",
       "Dependencies": [
         "python3",
         "so:libc.musl-x86_64.so.1"
@@ -21,14 +21,14 @@
         "cmd:env.sh=1.0.0-r0"
       ],
       "InstallIf": null,
-      "Size": 6179479,
-      "InstalledSize": 17931977,
+      "Size": 6178919,
+      "InstalledSize": 17932916,
       "ProviderPriority": 0,
       "BuildTime": "1970-01-01T00:00:00Z",
       "BuildDate": 0,
       "RepoCommit": "",
       "Replaces": null,
-      "DataHash": "5291302900169c2a90b3e55f9d7260bd05744a4a47fe59e28007fc2dea50dbcf"
+      "DataHash": "95c9e4a8d8cee071e6f0b9d8017348db69022377f511a4774989c14eb7ed6ee3"
     }
   ]
 }

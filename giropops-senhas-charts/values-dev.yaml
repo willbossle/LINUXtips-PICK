@@ -1,0 +1,13 @@
+namespace: giropops-senhas-dev
+
+image:
+  tag: "dev"
+  replicaCount: 3
+
+redis:
+  image:
+    tag: "dev"
+    replicaCount: 1
+    
+ingress:
+  host: dev-giropops-senhas.local.com

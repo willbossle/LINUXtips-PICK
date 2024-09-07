@@ -10,7 +10,7 @@ spec:
     matchLabels:
       app: giropops-senhas
   endpoints:
-  - port: 5000
+  - port: "5000"
     path: /metrics
     interval: 10s
     scheme: http

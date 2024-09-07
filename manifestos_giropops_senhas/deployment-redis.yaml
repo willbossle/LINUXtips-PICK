@@ -15,13 +15,13 @@ spec:
       labels:
         app: redis
     spec:
+      imagePullSecrets:
+      - name: docker-hub-willber
       containers:
       - image: willbossle/redis:2.0
         name: redis
         ports:
         - containerPort: 6379
-        imagePullSecrets:
-        - name: docker-hub-willber
         imagePullPolicy: IfNotPresent
         resources:
           limits:

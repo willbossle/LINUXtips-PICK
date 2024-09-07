@@ -8,7 +8,7 @@ contents:
     - giropops-senhas@local
     - bash
 #  keyring:
- # - ./melange.rsa.pub
+# - ./melange.rsa.pub
 archs:
   - x86_64
 accounts:
@@ -19,7 +19,7 @@ accounts:
     - username: nonroot
       uid: 65532
   run-as: nonroot
-cmd: /bin/bash /usr/bin/env.sh
+cmd: /bin/bash /usr/bin/env.sh && /bin/bash -c ulimit 65536
   
 entrypoint:
   #command: /home/build/venv/bin/python -m flask run --host=0.0.0.0

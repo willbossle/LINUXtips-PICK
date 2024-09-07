@@ -1,0 +1,15 @@
+namespace:
+  name: giropops-senhas-staging
+
+
+image:
+  tag: "staging"
+  replicaCount: 3
+
+redis:
+  image:
+    tag: "staging"
+    replicaCount: 1
+
+ingress:
+  host: staging-giropops-senhas.local.com

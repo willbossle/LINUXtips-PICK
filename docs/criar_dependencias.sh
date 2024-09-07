@@ -75,13 +75,13 @@ echo "Atualizando o repositório de charts do Helm..."
 helm repo add kyverno https://kyverno.github.io/kyverno/
 helm repo update
 
-# Cria um namespace para o Kyverno
-echo "Criando o namespace 'kyverno'..."
-kubectl create namespace kyverno
-
 # Instala o Kyverno usando Helm
 echo "Instalando o Kyverno..."
-helm install kyverno kyverno/kyverno --namespace kyverno
+helm install kyverno kyverno/kyverno -n kyverno --create-namespace \
+--set admissionController.replicas=3 \
+--set backgroundController.replicas=2 \
+--set cleanupController.replicas=2 \
+--set reportsController.replicas=2
 
 # Verifica se o Kyverno foi instalado corretamente
 echo "Verificando o status da instalação..."
@@ -113,12 +113,17 @@ kubectl get services --namespace ingress-nginx
 
 echo "Instalação do Ingress NGINX concluída!"
 
+# Criando namespace do giropops senhas
+Echo "Criando namespace giropops-senhas..."
+kubectl create namespace giropops-senhas
+kubectl get namespaces giropops-senhas
+
 # Criando certificado
 echo "Gerando chaves do certificado..." 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout chave-privada.key -out certificado.crt
 
 # Crie uma chave privada
-openssl genrsa -out giropops-senhas-autoassinado.key 2048
+openssl genrsa -out ca.key 2048
 
 # Crie um certificado autoassinado
 openssl req -new -x509 -key giropops-senhas-autoassinado.key -out giropops-senhas-autoassinado.crt -days 365 -subj /CN=localhost

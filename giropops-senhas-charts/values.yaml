@@ -1,0 +1,28 @@
+namespace:
+  name: default-namespace
+
+image:
+  repository: willbossle/giropops-senhas
+  tag: "2.0"
+
+redis:
+  image:
+    repository: willbossle/redis
+    tag: "2.0"
+  port: 6379
+
+resources:
+  limits:
+    cpu: "0.5"
+    memory: 384Mi
+  requests:
+    cpu: "0.1"
+    memory: 128Mi
+
+ingress:
+  enabled: true
+  host: giropops-senhas.local.com
+
+tls:
+  secretName: giropops-senhas-tls
+

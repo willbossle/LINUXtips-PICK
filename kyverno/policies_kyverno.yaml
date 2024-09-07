@@ -227,33 +227,31 @@ spec:
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: verify-image
-  annotations:
-    policies.kyverno.io/title: Verify Image
-    policies.kyverno.io/category: Software Supply Chain Security, Best Practices
-    policies.kyverno.io/severity: medium
-    policies.kyverno.io/subject: Pod
-    policies.kyverno.io/minversion: 1.7.0
-    policies.kyverno.io/description: "Using the Cosign project, OCI images may be signed to ensure supply chain security is maintained. Those signatures can be verified before pulling into a cluster. This policy checks the signature of an image repo called ghcr.io/kyverno/test-verify-image to ensure it has been signed by verifying its signature against the provided public key. This policy serves as an illustration for how to configure a similar rule and will require replacing with your image(s) and keys."
+  name: check-image
 spec:
   validationFailureAction: Enforce
   background: false
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
   rules:
-  - name: verify-image
-    match:
-      any:
-      - resources:
-          kinds:
-          - Pod
-    verifyImages:
-    - imageReferences:
-      - "willbossle/giropops-senhas*"
-      mutateDigest: true
-      attestors:
-      - entries:
-        - keys:
-            publicKeys: |
-              -----BEGIN PUBLIC KEY-----
-              MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuPAd0oyNLd1Q3PgaqfeI5ol8fWeD
-              FlZEQfzmLqM94V/CdjANfZW9k3EkDBYeuHqyiivuV0CKv2Af8lkGgTC/gQ==
-              -----END PUBLIC KEY-----
+    - name: check-image
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      verifyImages:
+      - imageReferences:
+        - "willbossle/giropops-senhas*"
+        attestors:
+        - count: 1
+          entries:
+          - keys:
+              publicKeys: |-
+                -----BEGIN PUBLIC KEY-----
+                MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuPAd0oyNLd1Q3PgaqfeI5ol8fWeD
+                FlZEQfzmLqM94V/CdjANfZW9k3EkDBYeuHqyiivuV0CKv2Af8lkGgTC/gQ==
+                -----END PUBLIC KEY-----                
+              rekor:
+                ignoreTlog: true
+                url: https://rekor.sigstore.dev

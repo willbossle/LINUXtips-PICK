@@ -6,19 +6,17 @@ metadata:
   name: giropops-senhas-deployment
   namespace: giropops-senhas
 spec:
+  replicas: 4 # Adicione o número de réplicas desejado
+  selector:
+    matchLabels:
+      app: giropops-senhas
   template:
     metadata:
       labels:
         app: giropops-senhas
-  selector:
-    matchLabels:
-      app: giropops-senhas
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 2
-      maxUnavailable: 1
     spec:
+      imagePullSecrets:
+      - name: docker-hub-willber
       containers:
       - image: willbossle/giropops-senhas:2.0
         name: giropops-senhas
@@ -26,13 +24,11 @@ spec:
         - containerPort: 5000
         resources:
           limits:
-            cpu: '0.4'
-            memory: 256Mi
+            cpu: '0.5'
+            memory: 384Mi
           requests:
             cpu: '0.1'
             memory: 128Mi
-        imagePullSecrets:
-        - name: docker-hub-willber
         imagePullPolicy: IfNotPresent
         env:
         - name: REDIS_HOST
@@ -40,9 +36,16 @@ spec:
               configMapKeyRef:
                 name: giropops-senhas-env
                 key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+              configMapKeyRef:
+                name: giropops-senhas-env
+                key: REDIS_PORT
         securityContext:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
+          capabilities:
+            add: ["SYS_RESOURCE"]
         livenessProbe:
           httpGet:
             path: /
@@ -61,3 +64,8 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 3
           successThreshold: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1

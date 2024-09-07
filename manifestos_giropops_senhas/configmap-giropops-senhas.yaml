@@ -4,4 +4,5 @@ metadata:
   name: giropops-senhas-env
   namespace: giropops-senhas
 data:
-  REDIS_HOST: "redis_service"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"

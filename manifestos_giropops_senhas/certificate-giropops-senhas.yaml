@@ -1,13 +1,28 @@
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: giropops-senhas-tls
+#   namespace: giropops-senhas
+# spec:
+#   secretName: giropops-senhas-tls
+#   issuerRef:
+#     name: letsencrypt-prod
+#     kind: ClusterIssuer
+#   commonName: giropops-senhas.local.com
+#   dnsNames:
+#   - giropops-senhas.local.com
+
+
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: giropops-senhas-tls
+  name: giropops-senhas-cert
   namespace: giropops-senhas
 spec:
-  secretName: giropops-senhas-tls-secret
+  secretName: giropops-senhas-tls
   issuerRef:
-    kind: ClusterIssuer
     name: selfsigned-issuer
-  commonName: giropops-senhas.local
+    kind: Issuer
+  commonName: giropops-senhas.local.com
   dnsNames:
-  - giropops-senhas.local
+  - giropops-senhas.local.com
