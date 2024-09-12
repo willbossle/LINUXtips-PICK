@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis-deployment
+  namespace: giropops-senhas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets.name }}
+      containers:
+        - image: willbossle/redis:2.0
+          name: redis
+          ports:
+            - containerPort: 6379
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "0.3"
+              memory: 128Mi
+            requests:
+              cpu: "0.1"
+              memory: 128Mi
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 3000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+                - CHOWN
+                - SETUID
+                - SETGID
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            timeoutSeconds: 5
+            periodSeconds: 5
+            failureThreshold: 5
+            successThreshold: 1
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 1
+            timeoutSeconds: 5
+            periodSeconds: 3
+          command: ["redis-server", "--appendonly", "no"]

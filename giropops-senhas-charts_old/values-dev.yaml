@@ -1,0 +1,108 @@
+replicaCount: 1
+
+image:
+  repository: willbossle/giropops-senhas
+  pullPolicy: IfNotPresent
+  tag: "2.0"
+
+imagePullSecrets:
+  - name: docker-hub-willber
+
+env:
+        - name: REDIS_HOST
+          valueFrom:
+              configMapKeyRef:
+                name: giropops-senhas-env
+                key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+              configMapKeyRef:
+                key: REDIS_PORT
+                name: giropops-senhas-env
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+
+
+securityContext:
+  capabilities: {}
+  privileged: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 5000
+  targetPort: 5000
+  selector:
+    app: giropops-senhas-dev
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  rules:
+  - host: giropops-senhas.local.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: giropops-senhas-service
+            port:
+              number: 5000
+  tls:
+  - hosts:
+    - giropops-senhas.local.com
+    secretName: giropops-senhas-tls
+
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 95
+  targetMemoryUtilizationPercentage: 95
+
+secret:
+  enabled: true
+  tls:
+    cert: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURoVENDQW0yZ0F3SUJBZ0lVYXNsbDBwdUFoYWR3aTlCRmZYSFRrdG9ZZ2xnd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1VqRUxNQWtHQTFVRUJoTUNRbEl4Q3pBSkJnTlZCQWdNQWxKVE1SSXdFQVlEVlFRS0RBbE1TVTVWV0ZSSgpVRk14SWpBZ0JnTlZCQU1NR1dkcGNtOXdiM0J6TFhObGJtaGhjeTVzYjJOaGJDNWpiMjB3SGhjTk1qUXdPVEEyCk1qSXdPVEEyV2hjTk1qVXdPVEEyTWpJd09UQTJXakJTTVFzd0NRWURWUVFHRXdKQ1VqRUxNQWtHQTFVRUNBd0MKVWxNeEVqQVFCZ05WQkFvTUNVeEpUbFZZVkVsUVV6RWlNQ0FHQTFVRUF3d1paMmx5YjNCdmNITXRjMlZ1YUdGegpMbXh2WTJGc0xtTnZiVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFLVVBDcGxpCnVVK2tCNk5VaGpIWUVSdVd4bkpLNlJrOG1CaWNjK0RlK0JtZk05ZmJaczhCZld5Ky9JVDdoQ05TeUVXSlFFbzUKZVNNMDNMMFdnVjkwR09BWTVsanBlYXBlVmczRUJGTHZEWHJUS2dPNHMwS0w3KzhGNXhCTHlOb3hqanRLNnNkRQo5YUhtOFJQMS9xVTV3S3lwK29zb1N2bks4YlZtV1dkTGVZRFBncllRRHpZMEhYU21sV3pQK2FjMHRxNjJ3aGgrClJNZFhHcFJMaUFMOWZKbmNlb3dRNmlTSlBacnpWZkVCL0tIMmNEdFVrcmR3YW1KWGd6SzRuei9rRkVycUNVbkIKOWZ5MThWVGVONjZUSkhlUEtQR1FlMTB5ZlQ5MVBMV09tYXZFWXFQaDdtUVBDd3dxWDJJdTNvUC9wa2lvTFZyaAoyWFIzdEpmM2NSb0lDUTBDQXdFQUFhTlRNRkV3SFFZRFZSME9CQllFRkxBakVRZmVkT0lvVjZMdjFlRm10UXNzClIxZm9NQjhHQTFVZEl3UVlNQmFBRkxBakVRZmVkT0lvVjZMdjFlRm10UXNzUjFmb01BOEdBMVVkRXdFQi93UUYKTUFNQkFmOHdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBRnJwNUJ0aWdxUkhnY0JTSXVGcFBReE4vbzlFdTZ3aAo3M1N1d1BoOHZ6R3RsRjFTZ3VDNW9hd1JJRytMZFRZQW93TmhISDNYTFhXOHg5OTlxQkRoOXpENjhXTVl0Qk0yCndueHYreDFoREJTekpkU0U4b1A3TXA4b0JxeW8rNjZ3VElsKzlnblBXc1p3WXBCd01xUlpQNFMwOTl1dmpOMDYKSEFwVVFsdHFYaEhXZzhHenA0SlhiTVluS2Zid2ZzV1FaNHJQYkZMeDJQc3lQZ05UQ01OZ2ROWWZtUHpsYjB1TwpsOHk0Y3hFaEJNeWdFRG1la0tORTBicEhTZGx4czlXYzFzR3ViL0ZjSkZISTZjVndRbkJyZXNuYS9oVnQ5bkdMCkhxcEF3N2JmdERiZW1oeXpySEdvK2RvM0ZGZWtLc294Q1Z4YWlRSTQ5SCt3aHdOdHBLR2dvdkU9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2QUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktZd2dnU2lBZ0VBQW9JQkFRQ2xEd3FaWXJsUHBBZWoKVklZeDJCRWJsc1p5U3VrWlBKZ1luSFBnM3ZnWm56UFgyMmJQQVgxc3Z2eUUrNFFqVXNoRmlVQktPWGtqTk55OQpGb0ZmZEJqZ0dPWlk2WG1xWGxZTnhBUlM3dzE2MHlvRHVMTkNpKy92QmVjUVM4amFNWTQ3U3VySFJQV2g1dkVUCjlmNmxPY0NzcWZxTEtFcjV5dkcxWmxsblMzbUF6NEsyRUE4Mk5CMTBwcFZzei9tbk5MYXV0c0lZZmtUSFZ4cVUKUzRnQy9YeVozSHFNRU9va2lUMmE4MVh4QWZ5aDluQTdWSkszY0dwaVY0TXl1SjgvNUJSSzZnbEp3Zlg4dGZGVQozamV1a3lSM2p5anhrSHRkTW4wL2RUeTFqcG1yeEdLajRlNWtEd3NNS2w5aUx0NkQvNlpJcUMxYTRkbDBkN1NYCjkzRWFDQWtOQWdNQkFBRUNnZ0VBUWNKeVdKWEtlbjVCUk1NaUM2Mm5jelJvcjVSRXRmYzhLV0g3a0xXRVpzRFUKcU1VU2VwcC9XOW5qUlIvbmp5TW1BdjRoalBERTRFL3BPYlJEcXNIWVB6L3NWYlArOHU5T25ZRmdyNkhwM3V0TwpLOWxrSWJrYXlFR3p3dnhPY3crWE9Pd3FDV1ho

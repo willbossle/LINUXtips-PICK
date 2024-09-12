@@ -1,13 +1,39 @@
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ingress-giropops-senhas
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     acme.cert-manager.io/http01-edit-in-place: “true”
+#     cert-manager.io/cluster-issuer: letsencrypt-prod
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+#   labels:
+#     app: giropops-senhas
+#   namespace: giropops-senhas
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#   - host: giropops-senhas.local.com
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: giropops-senhas-service
+#             port:
+#               number: 5000
+#   tls:
+#   - hosts:
+#     - giropops-senhas.local.com
+#     secretName: giropops-senhas-tls
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-giropops-senhas
+  name: giropops-ingress
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
-  labels:
-    app: giropops-senhas
-  namespace: giropops-senhas
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
   rules:
@@ -22,6 +48,6 @@ spec:
             port:
               number: 5000
   tls:
-  - hosts:
-    - giropops-senhas.local.com
-    secretName: giropops-senhas-tls
+   - hosts:
+     - giropops-senhas.local.com
+     secretName: giropops-senhas-tls

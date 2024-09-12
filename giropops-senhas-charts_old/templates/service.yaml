@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: giropops-senhas-service
+  namespace: giropops-senhas
+  labels:
+    app: giropops-senhas
+spec:
+  selector:
+    app: giropops-senhas
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+  type: {{ .Values.service.type }}
