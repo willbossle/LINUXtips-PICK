@@ -1,0 +1,9 @@
+# templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMap.name }}
+  namespace: {{ .Values.configMap.namespace }}
+data:
+  REDIS_HOST: {{ .Values.configMap.data.REDIS_HOST | quote }}
+  REDIS_PORT: {{ .Values.configMap.data.REDIS_PORT | quote }}

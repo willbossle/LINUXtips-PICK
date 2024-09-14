@@ -1,0 +1,83 @@
+{{- range $deployment := .Values.deployments }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $deployment.name }}
+  namespace: {{ $deployment.namespace | default "giropops-senhas"}}
+  labels:
+    env: {{ $.Values.env | default "prod" }}
+spec:
+  replicas: {{ $deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $deployment.labels.app }}
+      env: {{ $.Values.env | default "prod" }}  # Certifique-se de que os labels aqui correspondem aos labels no template
+  template:
+    metadata:
+      labels:
+        app: {{ $deployment.labels.app }}  # Certifique-se de que os labels aqui correspondem ao selector
+        env: {{ $.Values.env | default "prod" }}
+    spec:
+      serviceAccountName: {{ $deployment.serviceAccountName }}
+      {{- if $deployment.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range $secret := $deployment.imagePullSecrets }}
+        - name: {{ $secret.name }}
+        {{- end }}
+      {{- end }}
+      containers:
+        {{- range $container := $deployment.containers }}
+        - name: {{ $container.name }}
+          image: {{ $container.image }}
+          ports:
+            {{- range $port := $container.ports }}
+            - containerPort: {{ $port.containerPort }}
+            {{- end }}
+          env:
+            {{- range $env := $container.env }}
+            {{- if $env.valueFrom }}
+            - name: {{ $env.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $env.valueFrom.configMapKeyRef.name }}
+                  key: {{ $env.valueFrom.configMapKeyRef.key }}
+            {{- else }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | quote }}
+            {{- end }}
+            {{- end }}
+          resources:
+            limits:
+              memory: {{ $container.resources.limits.memory }}
+              cpu: {{ $container.resources.limits.cpu }}
+            requests:
+              memory: {{ $container.resources.requests.memory }}
+              cpu: {{ $container.resources.requests.cpu }}
+          securityContext:
+            allowPrivilegeEscalation: {{ $container.securityContext.allowPrivilegeEscalation }}
+            runAsUser: {{ $container.securityContext.runAsUser }}
+            runAsGroup: {{ $container.securityContext.runAsGroup }}
+            capabilities:
+              drop:
+                {{- range $capability := $container.securityContext.capabilities.drop }}
+                - {{ $capability }}
+                {{- end }}
+              {{- if $container.securityContext.capabilities.add }}
+              add:
+                {{- range $capability := $container.securityContext.capabilities.add }}
+                - {{ $capability }}
+                {{- end }}
+              {{- end }}
+          livenessProbe:
+            {{- toYaml $container.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml $container.readinessProbe | nindent 12 }}
+          {{- if $container.command }}
+          command:
+            {{- range $cmd := $container.command }}
+            - {{ $cmd | quote }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+---
+{{- end }}

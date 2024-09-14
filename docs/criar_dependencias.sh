@@ -41,9 +41,55 @@ chmod +x ./kind
 mv ./kind /usr/local/bin/
 
 # Baixa e instala o kubectl
-curl -LO "https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl"
-chmod +x ./kubectl
-mv ./kubectl /usr/local/bin/
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/
+#!/bin/bash
+
+# Verifica se o script está sendo executado com privilégios de superusuário
+if [ "$(id -u)" -ne "0" ]; then
+    echo "Este script deve ser executado como root ou com sudo."
+    exit 1
+fi
+
+# Atualizando repositórios e atualizando pacotes...
+echo "Atualizando repositórios e atualizando pacotes..."
+
+apt update && apt upgrade -y
+
+#Instalando pacotes e dependências necessárias...
+echo "Instalando pacotes e dependências necessárias..."
+
+apt install -y apt-transport-https ca-certificates curl gnupg lsb-release openssl
+
+# Instala Docker
+echo "Instalando o Docker..."
+
+# Adiciona o repositório oficial do Docker
+curl -fsSL https://download.docker.com/linux/$(lsb_release -cs)/gpg | sudo apt-key add -
+echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -cs) $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Instala o Docker
+apt install -y docker-ce docker-ce-cli containerd.io
+
+# Adiciona o usuário atual ao grupo docker (necessário para rodar o Docker sem sudo)
+usermod -aG docker $USER
+
+# Verifica se o Docker está instalado corretamente
+docker --version
+
+# Instala o Kubernetes (kind e kubectl)
+echo "Instalando o kind e o kubectl..."
+
+# Baixa e instala o kind
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+chmod +x ./kind
+mv ./kind /usr/local/bin/
+
+# Baixa e instala o kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/
 
 # Verifica as versões instaladas
 kind --version
@@ -153,7 +199,14 @@ kubectl get services --namespace cert-manager
 
 echo "Instalação do cert-manager concluída!"
 
-#!/bin/bash
+# Instalação do Cosign
+
+echo "Instalando Cosign..."
+curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
+sudo mv cosign-linux-amd64 /usr/local/bin/cosign
+sudo chmod +x /usr/local/bin/cosign
+
+echo "Cosign instalado!"
 
 # Define o domínio e o IP
 DOMAIN="giropops-senhas.local"
@@ -166,3 +219,6 @@ if ! grep -q "$DOMAIN" /etc/hosts; then
 else
     echo "A entrada para $DOMAIN já existe no /etc/hosts"
 fi
+# Verifica as versões instaladas
+kind --version
+kubectl version --client

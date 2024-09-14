@@ -1,0 +1,13 @@
+# templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-connection
+  labels:
+    app: {{ .Values.service.name | default "default-service-name" }}
+spec:
+  containers:
+  - name: test-container
+    image: curlimages/curl:latest
+    command: ['sh', '-c', 'curl -f http://{{ .Values.service.name | default "default-service-name" }}:{{ .Values.service.port | default 80 }} || exit 1']
+  restartPolicy: Never

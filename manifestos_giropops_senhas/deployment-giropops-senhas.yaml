@@ -6,7 +6,7 @@ metadata:
   name: giropops-senhas-deployment
   namespace: giropops-senhas
 spec:
-  replicas: 4 # Adicione o número de réplicas desejado
+  replicas: 5
   selector:
     matchLabels:
       app: giropops-senhas
@@ -42,10 +42,13 @@ spec:
                 name: giropops-senhas-env
                 key: REDIS_PORT
         securityContext:
+          allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
           capabilities:
             add: ["SYS_RESOURCE"]
+            drop:
+              - ALL
         livenessProbe:
           httpGet:
             path: /

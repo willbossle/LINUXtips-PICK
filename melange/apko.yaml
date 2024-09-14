@@ -6,9 +6,6 @@ contents:
     - '@local packages'
   packages:
     - giropops-senhas@local
-    - bash
-#  keyring:
-# - ./melange.rsa.pub
 archs:
   - x86_64
 accounts:
@@ -22,5 +19,4 @@ accounts:
 cmd: /bin/bash /usr/bin/env.sh && /bin/bash -c ulimit 65536
   
 entrypoint:
-  #command: /home/build/venv/bin/python -m flask run --host=0.0.0.0
   command: /usr/bin/app

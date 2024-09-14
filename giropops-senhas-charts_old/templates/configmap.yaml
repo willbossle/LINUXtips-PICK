@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: giropops-senhas-env
-  namespace: giropops-senhas
-data:
-  REDIS_HOST: {{ .Values.env.REDIS_HOST }}
-  REDIS_PORT: {{ .Values.env.REDIS_PORT }}
