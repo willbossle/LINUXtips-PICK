@@ -167,3 +167,4 @@ database.db
 old/
 giropops-senhas_old/
 *.key
+.vscode/

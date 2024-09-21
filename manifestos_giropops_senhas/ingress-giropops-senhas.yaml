@@ -33,8 +33,6 @@ metadata:
   name: giropops-senhas-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    #cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
   labels:
     app: giropops-senhas
   namespace: giropops-senhas
@@ -52,6 +50,7 @@ spec:
             port:
               number: 5000
   tls:
-   - hosts:
-     - giropops-senhas.local.com
-     secretName: giropops-senhas-tls
+  - hosts:
+    - giropops-senhas.local.com
+    secretName: giropops-senhas-tls
+    #secretName: certificado-giropops-senhas

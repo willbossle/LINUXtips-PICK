@@ -33,14 +33,14 @@ spec:
         env:
         - name: REDIS_HOST
           valueFrom:
-              configMapKeyRef:
-                name: giropops-senhas-env
-                key: REDIS_HOST
+            configMapKeyRef:
+              name: giropops-senhas-env
+              key: REDIS_HOST
         - name: REDIS_PORT
           valueFrom:
-              configMapKeyRef:
-                name: giropops-senhas-env
-                key: REDIS_PORT
+            configMapKeyRef:
+              name: giropops-senhas-env
+              key: REDIS_PORT
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -48,7 +48,7 @@ spec:
           capabilities:
             add: ["SYS_RESOURCE"]
             drop:
-              - ALL
+            - ALL
         livenessProbe:
           httpGet:
             path: /
@@ -67,6 +67,15 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 3
           successThreshold: 1
+        volumeMounts:
+        - name: tls-volume
+          mountPath: /etc/tls
+          readOnly: true
+      volumes:
+      - name: tls-volume
+        secret:
+          secretName: giropops-senhas-tls
+          #certificado-giropops-senhas
   strategy:
     type: RollingUpdate
     rollingUpdate:
