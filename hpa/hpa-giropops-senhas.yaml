@@ -9,7 +9,7 @@ spec:
     kind: Deployment
     name: giropops-senhas
   minReplicas: 3
-  maxReplicas: 10
+  maxReplicas: 100
   metrics:
   - type: Resource
     resource:
@@ -29,7 +29,7 @@ spec:
       policies:
       - type: Percent
         value: 90
-        periodSeconds: 10
+        periodSeconds: 5
     scaleDown:
       stabilizationWindowSeconds: 60
       policies:

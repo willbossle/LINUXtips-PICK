@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k6-scripts
+  namespace: giropops-senhas
+data:
+  test.js: "import http from 'k6/http';\nimport { check, sleep } from 'k6';\n#magic___^_^___line\nexport let options = {\n    #magic___^_^___line\n    vus: 17, \n    duration: '1m', \n    rps: 1000, \n};\n    #magic___^_^___line\nexport default function () {\n    const url = 'https://giropops-senhas.local.com/api/gerar-senha';\n    #magic___^_^___line\n    const payload = JSON.stringify({\n        tamanho: 12,\n        incluir_numeros: true,\n        incluir_caracteres_especiais: true,\n    });\n        #magic___^_^___line\n    const params = {\n        headers: {\n            'Content-Type': 'application/json',\n        },\n    };\n            #magic___^_^___line\n    let res = http.post(url, payload, params);\n            #magic___^_^___line\n    check(res, {\n        'is status 200': (r) => r.status === 200,\n        'response time < 200ms': (r) => r.timings.duration < 200,\n    });\n            #magic___^_^___line\n    sleep(0.5); \n}\n"

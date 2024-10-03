@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 // Defina a URL base como localhost:5000
-const BASE_URL = __ENV.URL_DO_APP || 'http://192.168.0.18:5000';
+const BASE_URL = __ENV.URL_DO_APP || 'https://giropops-senhas.local.com';
 
 export const options = {
     // Configuração dos estágios para atingir 1000 requisições por minuto

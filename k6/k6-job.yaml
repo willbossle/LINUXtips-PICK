@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-test
+  namespace: giropops-senhas
+spec:
+  template:
+    spec:
+      containers:
+      - name: k6
+        image: loadimpact/k6:latest
+        args: ["run", "/home/willber/Área de trabalho/LINUXtips-PICK/k6/teste.js"] # Substitua pelo caminho correto do seu script
+        volumeMounts:
+        - name: k6-scripts
+          mountPath: /tests
+      restartPolicy: Never
+      volumes:
+      - name: k6-scripts
+        configMap:
+          name: k6-scripts
+  backoffLimit: 4
